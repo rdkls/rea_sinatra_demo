@@ -30,4 +30,13 @@ RUN gem install unicorn
 # Build deps cleanup
 RUN apk del build-deps
 
+# Harden
+# Remove all users except root
+RUN sed -i -r '/^root/!d' /etc/group /etc/passwd
+# Crons
+# TODO others ..
+RUN rm -fr /var/spool/cron
+RUN rm -fr /etc/crontabs
+RUN rm -fr /etc/periodic
+
 CMD ${unicorn} ${appdir}/config.ru -p ${port}
