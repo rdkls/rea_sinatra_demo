@@ -1,0 +1,13 @@
+---
+- name: Provision REA sinatra demo app to AWS
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  vars_files:
+      - vars/aws-creds.yml
+
+  tasks:
+    - name: Ensure ECR repo
+      ecs_ecr: name=rea/demo
+
+#- name: Deploy REA Sinatra demo app to ECR
