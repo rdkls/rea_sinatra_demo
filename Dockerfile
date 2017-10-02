@@ -1,24 +1,33 @@
-FROM ubuntu
+FROM alpine:3.6
 
-ENV installpath     /opt
+ENV installpath     /usr/src
 ENV port            80
-ENV unicorn         /usr/local/bin/unicorn
+ENV unicorn         /usr/bin/unicorn
 ENV appdir          ${installpath}/simple-sinatra-app-master
 
 EXPOSE ${port}
 
 WORKDIR ${installpath}
 
-RUN ["apt-get", "update"]
-RUN ["apt-get", "install", "-y", "wget", "unzip", "ruby", "ruby-bundler"]
-RUN ["wget", "https://github.com/rea-cruitment/simple-sinatra-app/archive/master.zip"]
-RUN ["unzip", "master.zip"]
+# Build deps install
+RUN apk update
+RUN apk add --virtual build-deps ruby-dev build-base linux-headers ruby-irb openssl ruby-bundler
 
+# App files
+RUN mkdir -p ${installpath}
+RUN wget https://github.com/rea-cruitment/simple-sinatra-app/archive/master.zip
+RUN unzip master.zip
+RUN rm master.zip
+
+# App dependencies
 WORKDIR ${appdir}
-RUN ["bundle", "install"]
+RUN bundle install
 
-# Install unicorn
-RUN ["apt-get", "install", "-y", "build-essential", "ruby-dev"]
-RUN ["gem", "install", "unicorn"]
+# Unicorn (requires ruby-rdoc)
+RUN apk add ruby-rdoc
+RUN gem install unicorn
+
+# Build deps cleanup
+RUN apk del build-deps
 
 CMD ${unicorn} ${appdir}/config.ru -p ${port}
