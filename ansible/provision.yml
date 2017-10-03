@@ -4,10 +4,27 @@
   connection: local
   gather_facts: false
   vars_files:
-      - vars/aws-creds.yml
+    - vars/aws-creds.yml
 
   tasks:
-    - name: Ensure ECR repo
-      ecs_ecr: name=rea/demo
 
-#- name: Deploy REA Sinatra demo app to ECR
+  - name: ECR login
+    tags: image
+    shell: "$(aws ecr get-login --region us-east-1 --no-include-email)"
+
+  - name: ECR repo
+    ecs_ecr: name=rea/demo
+
+  - name: build docker image
+    tags: image
+    docker_image:
+      path: ../docker
+      name: 356561822006.dkr.ecr.us-east-1.amazonaws.com/rea/demo:latest
+      push: yes
+
+# sec group
+# ACL
+# VPC
+# ECS cluster
+# Task
+# Run task
