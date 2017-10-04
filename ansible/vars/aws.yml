@@ -1,0 +1,3 @@
+---
+ecr_image_name: "356561822006.dkr.ecr.us-east-1.amazonaws.com/rea/demo:latest"
+ecs_cluster_name: "gan4j2"

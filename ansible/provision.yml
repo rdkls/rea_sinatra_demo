@@ -1,14 +1,15 @@
 ---
+# vim:ft=ansible:
 - name: Provision REA sinatra demo app to AWS
   hosts: localhost
   connection: local
   gather_facts: false
   vars_files:
+    - vars/aws.yml
     - vars/aws-creds.yml
 
   tasks:
-
-  - name: ECR login
+  - name: ecr login
     tags: image
     shell: "$(aws ecr get-login --region us-east-1 --no-include-email)"
 
@@ -19,12 +20,27 @@
     tags: image
     docker_image:
       path: ../docker
-      name: 356561822006.dkr.ecr.us-east-1.amazonaws.com/rea/demo:latest
+      name: "{{ ecr_image_name }}"
       push: yes
 
-# sec group
-# ACL
-# VPC
-# ECS cluster
-# Task
-# Run task
+  - name: ecs task definition
+    tags: ecs
+    ecs_taskdefinition:
+      state: present
+      family: rea-demo-sinatra-taskdef
+      containers:
+        - name: sinatra-app
+          image: "{{ ecr_image_name }}"
+          portMappings:
+            - containerPort: 80
+              hostPort: 8888
+          memory: 300
+
+  - name: ecs service
+    tags: ecs
+    ecs_service:
+      state: present
+      name: rea-demo-sinatra-service
+      cluster: {{ ecs_cluster_name }}
+      desired_count: 1
+      task_definition: rea-demo-sinatra-taskdef
