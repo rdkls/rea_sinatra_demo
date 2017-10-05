@@ -13,7 +13,8 @@
     tags: image
     shell: "$(aws ecr get-login --region us-east-1 --no-include-email)"
 
-  - name: ECR repo
+  - name: ecr repo
+    tags: image
     ecs_ecr: name=rea/demo
 
   - name: build docker image
@@ -36,11 +37,35 @@
               hostPort: 8888
           memory: 300
 
+  - name: ecs cluster
+    ecs_cluster:
+      name: "{{ ecs_cluster_name }}"
+      state: present
+
   - name: ecs service
-    tags: ecs
     ecs_service:
       state: present
       name: rea-demo-sinatra-service
-      cluster: {{ ecs_cluster_name }}
+      cluster: "{{ ecs_cluster_name }}"
       desired_count: 1
       task_definition: rea-demo-sinatra-taskdef
+
+
+  - name: ec2 security group
+    tags: TODO
+    when: false
+    ec2_group:
+      name: "{{ ec2_sg_name }}"
+      state: present
+      rules:
+        - proto: tcp
+          from_port: 80
+          to_port: 80
+          cidr_ip: 0.0.0.0/0
+
+  - name: ec2 docker host for ecs
+    tags: TODO
+    when: false
+    ec2:
+      group: "{{ ec2_sg_name }}"
+      image: "{{ docker_host_ami_id }}"
