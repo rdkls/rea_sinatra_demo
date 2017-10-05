@@ -1,3 +1,5 @@
 ---
 ecr_image_name: "356561822006.dkr.ecr.us-east-1.amazonaws.com/rea/demo:latest"
-ecs_cluster_name: "gan4j2"
+ecs_cluster_name: gan4j2
+ec2_sg_name: sg-rea-demo-docker-host
+docker_host_ami_id: amzn-ami-2017.03.f-amazon-ecs-optimized
