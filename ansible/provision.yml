@@ -33,7 +33,7 @@
         - name: sinatra-app
           image: "{{ ecr_image_name }}"
           portMappings:
-            - containerPort: 80
+            - containerPort: 8888
               hostPort: 8888
           memory: 300
 
@@ -59,8 +59,8 @@
       state: present
       rules:
         - proto: tcp
-          from_port: 80
-          to_port: 80
+          from_port: 8888
+          to_port: 8888
           cidr_ip: 0.0.0.0/0
 
   - name: ec2 docker host for ecs
